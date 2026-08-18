@@ -1,0 +1,37 @@
+name: Notebook Validation
+
+on:
+  push:
+    branches:
+      - main
+      - feature/project-setup
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  execute-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute notebook from a clean kernel
+        run: |
+          jupyter nbconvert \
+            --to notebook \
+            --execute notebooks/maintenance_data_workflow.ipynb \
+            --output /tmp/maintenance_data_workflow.executed.ipynb \
+            --ExecutePreprocessor.timeout=180
