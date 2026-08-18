@@ -1,123 +1,124 @@
 # Maintenance ML Priority Prediction
 
-A Python data-workflow project that prepares realistic maintenance and work-order data for future machine-learning models that predict maintenance priority.
+A Python data-workflow project that creates, cleans, explores, and visualizes realistic synthetic maintenance work-order data as a foundation for future machine-learning priority prediction.
 
-> **Current phase:** Data preparation, cleaning, exploratory analysis, visualization, and reproducibility. Model training is intentionally a later phase.
+> **Current phase:** The AI Programming Foundations data-workflow phase is implemented. Model training is intentionally reserved for a later machine-learning phase.
 
 ## Project Overview
 
-This project builds a professional, reusable data workflow around maintenance work orders and asset-management information. The long-term goal is to predict work-order priority (`Low`, `Medium`, `High`, or `Emergency`) from operational features such as asset age, maintenance history, condition, prior failures, preventive-maintenance compliance, issue type, occupancy impact, and safety impact.
+This project builds a professional, reusable workflow around maintenance work orders and asset-management information. The long-term goal is to predict work-order priority (`Low`, `Medium`, `High`, or `Emergency`) from operational information available at or before request intake.
 
-The current course project focuses on the foundation required before machine learning: generating or ingesting data, cleaning it with reusable Python functions, performing exploratory data analysis (EDA), creating interpretable visualizations, documenting assumptions and limitations, and making the workflow reproducible.
+The current course project focuses on the foundation required before machine learning:
+
+- reproducible synthetic-data generation;
+- Pandas data ingestion;
+- reusable cleaning functions with docstrings;
+- exploratory data analysis (EDA);
+- interpreted Matplotlib visualizations;
+- bias and data-quality reflection;
+- reproducible Python dependencies;
+- explicit assumptions and limitations.
 
 ## Why Maintenance Data?
 
-Public tutorial datasets such as Titanic are useful for learning, but this repository is designed around a real facilities-management use case. A maintenance workflow creates a stronger foundation for later work in classification, predictive maintenance, asset-failure forecasting, repair-cost estimation, and intelligent work-order routing.
+Public tutorial datasets such as Titanic are useful for learning, but this repository is designed around a facilities-management use case that can later become a real machine-learning application. The same workflow can eventually support work-order priority classification, predictive maintenance, asset-failure analysis, repair-cost estimation, and intelligent work-order routing.
 
-Because real customer maintenance history is not yet available for this project, the initial dataset will be **synthetic**.
+Because historical customer maintenance records are not yet available for this project, the initial dataset is **synthetic**.
 
 ## Synthetic Data Disclosure
 
-The maintenance records used in the first version of this project are simulated and do **not** represent actual customer, employee, property, technician, or asset records.
+The records in this project are simulated and do **not** represent actual customers, employees, technicians, properties, or assets.
 
-The synthetic generator is designed to create realistic-looking relationships among maintenance variables while also introducing controlled data-quality problems such as missing values, inconsistent categorical formatting, duplicates, and limited outliers. These imperfections give the cleaning workflow meaningful problems to address.
+The generator creates domain-informed statistical relationships while deliberately introducing controlled data-quality problems such as:
 
-Synthetic relationships are assumptions created for educational experimentation. Results from this dataset must not be interpreted as validated evidence about real buildings, assets, technicians, or maintenance organizations.
+- missing values;
+- inconsistent capitalization and whitespace;
+- duplicate work-order records;
+- impossible negative asset ages;
+- injected repair-cost and resolution-time outliers.
 
-## Project Objective
+These imperfections make the cleaning workflow meaningful. Relationships discovered in the data partly reflect assumptions encoded by the generator and must not be presented as validated evidence about real maintenance organizations.
 
-The immediate objective is to create an ML-ready maintenance dataset through a reproducible Python workflow:
+## Implemented Dataset
 
-```text
-Synthetic Maintenance Data
-          |
-          v
-     Pandas Ingestion
-          |
-          v
-      Data Cleaning
-          |
-          v
-Exploratory Data Analysis
-          |
-          v
-     Visualizations
-          |
-          v
-   ML-Ready Dataset
-```
+The default generator uses a fixed random seed (`42`) and creates:
 
-A later phase can extend this workflow into supervised machine learning:
+- **10 simulated properties**;
+- approximately **750 simulated assets**;
+- **8,000 base work orders** across 2023–2025;
+- **8,040 raw rows** after intentional duplicate injection;
+- **18 columns**;
+- four future target classes: `Low`, `Medium`, `High`, and `Emergency`.
 
-```text
-ML-Ready Dataset
-       |
-       v
-Feature Engineering
-       |
-       v
-Train / Validation / Test Split
-       |
-       v
-Baseline + ML Models
-       |
-       v
-Model Evaluation
-       |
-       v
-Priority Prediction Service
-```
+The raw priority mix is intentionally imbalanced, with Medium as the largest group and Emergency as the smallest group. This creates a more useful foundation for later discussion of precision, recall, F1 score, confusion matrices, and class imbalance.
 
-## Planned Dataset
+### Main fields
 
-The synthetic dataset is expected to represent multiple properties, hundreds of assets, and several years of work-order history. The initial design targets roughly 8,000 work orders.
-
-Example feature groups include:
-
-| Category | Example Fields |
+| Category | Fields |
 | --- | --- |
-| Work order | `work_order_id`, `created_date`, `issue_type`, `maintenance_type`, `priority` |
-| Asset | `asset_id`, `asset_type`, `asset_age_years`, `condition`, `criticality` |
-| Maintenance history | `previous_failures_12m`, `days_since_last_service`, `pm_overdue_days` |
+| Identifiers | `work_order_id`, `property_id`, `asset_id` |
+| Time | `created_date` |
+| Asset | `asset_type`, `asset_age_years`, `asset_condition`, `asset_criticality` |
+| Maintenance | `maintenance_type`, `issue_type`, `previous_failures_12m`, `days_since_last_service`, `pm_overdue_days` |
 | Operational impact | `occupancy_impact`, `safety_related` |
-| Outcome | `resolution_hours`, `labor_hours`, `repair_cost`, `repeat_failure_30d` |
+| Cost/outcome | `estimated_repair_cost`, `resolution_hours` |
+| Future target | `priority` |
 
-The target for the future classification task is:
+The detailed generation assumptions are documented in `docs/dataset_design.md`.
+
+## Workflow
 
 ```text
-Low
-Medium
-High
-Emergency
+Synthetic CMMS Data Generator
+            |
+            v
+      Raw CSV Dataset
+            |
+            v
+       Pandas Ingestion
+            |
+            v
+        Data Cleaning
+            |
+            v
+ Exploratory Data Analysis
+            |
+            v
+      Visualizations
+            |
+            v
+     Processed Dataset
+            |
+            v
+ Future ML Feature Engineering
 ```
 
-The detailed generation rules and assumptions will be documented in `docs/dataset_design.md`.
+The cleaned dataset contains the **8,000 unique base work orders** after duplicate removal and documented handling of missing/invalid values.
 
 ## Repository Structure
-
-The project is organized as a Python-first data-science repository:
 
 ```text
 maintenance-ml-priority-prediction/
 |
 |-- README.md
+|-- SECURITY.md
 |-- requirements.txt
 |-- .gitignore
 |
 |-- data/
 |   |-- raw/
-|   |   `-- maintenance_work_orders.csv
 |   `-- processed/
-|       `-- maintenance_ml.csv
 |
 |-- notebooks/
 |   `-- maintenance_data_workflow.ipynb
 |
 |-- src/
 |   |-- __init__.py
+|   |-- config.py
 |   |-- generate_data.py
-|   |-- preprocess.py
-|   `-- config.py
+|   |-- cleaning.py
+|   |-- eda.py
+|   `-- visualizations.py
 |
 |-- docs/
 |   `-- dataset_design.md
@@ -128,11 +129,11 @@ maintenance-ml-priority-prediction/
 `-- models/
 ```
 
-Some directories and files above are part of the planned workflow and will be added incrementally as the project issues are completed.
+The CSV files can be regenerated from the committed Python code. The notebook automatically generates the raw dataset when it is not present.
 
 ## Notebook Structure
 
-The primary notebook will contain the course-required sections with clear Markdown headings:
+The primary notebook contains the exact course-oriented sections:
 
 1. **Setup**
 2. **Data Ingestion**
@@ -141,21 +142,7 @@ The primary notebook will contain the course-required sections with clear Markdo
 5. **Visualizations**
 6. **Summary and Interpretation**
 
-The notebook must run from top to bottom without errors.
-
-## Python Environment
-
-The project uses Python and Jupyter. The environment will be kept intentionally small and focused on the libraries actually used by the analysis.
-
-Expected core packages include:
-
-- Python 3.11+
-- pandas
-- NumPy
-- Matplotlib
-- Jupyter
-- Seaborn, if used in the final notebook
-- scikit-learn in the later machine-learning phase
+The final submission should be executed from a restarted kernel from top to bottom.
 
 ## Reproducing the Project
 
@@ -184,7 +171,7 @@ Activate it on Windows PowerShell:
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install the exact project dependencies after `requirements.txt` has been generated:
+Install the pinned dependencies:
 
 ```bash
 python -m pip install --upgrade pip
@@ -203,109 +190,186 @@ Open:
 notebooks/maintenance_data_workflow.ipynb
 ```
 
-Then run the notebook from the first cell through the final cell.
+Restart the kernel and run all cells from the beginning.
 
 ### Requirements File
 
-To meet the project reproducibility requirement, the final environment dependency list will be generated from the working virtual environment with:
+The pinned package versions in `requirements.txt` were derived from `pip freeze` in the project execution environment. The environment includes Pandas, NumPy, Matplotlib, Jupyter/Notebook, IPython kernel support, and notebook-format support.
 
-```bash
-pip freeze > requirements.txt
-```
+## Data Cleaning Functions
 
-This ensures that the submitted `requirements.txt` records the package versions used to execute the project.
+`src/cleaning.py` implements four reusable student-defined functions, each with an informative docstring:
 
-## Data Cleaning Strategy
+### `standardize_categories()`
 
-The raw synthetic dataset will intentionally contain realistic data-quality problems. Cleaning functions will be implemented as reusable Python functions with informative docstrings and will be called from the notebook.
+Normalizes equivalent asset-type and priority labels. For example, `HVAC`, `hvac`, and ` HVAC ` should be treated as one category rather than three separate values.
 
-Planned cleaning tasks include:
+### `remove_duplicate_work_orders()`
 
-- standardizing categorical text and whitespace;
-- handling missing values using field-appropriate strategies;
-- identifying true duplicate work-order records;
-- validating impossible or suspicious numerical values;
-- preserving rare but legitimate observations, especially high-severity maintenance events.
+Removes duplicate records using `work_order_id`. Duplicate events would otherwise distort work-order counts, costs, and priority distributions.
 
-Each cleaning decision will be explained in the notebook so that the transformation is transparent rather than hidden inside code.
+### `flag_invalid_values()`
 
-## Bias Awareness: How Poor Data Cleaning Can Introduce Bias
+Changes documented impossible or deliberately injected values to missing values before imputation. The thresholds are specific to this synthetic educational dataset and are not intended as universal maintenance rules.
 
-Poor cleaning can change the population represented by a dataset and therefore change the conclusions or models produced from it. For example, suppose low-priority work orders are more likely to have incomplete fields because technicians spend less time documenting routine requests. If every row containing a missing value were simply deleted, low-priority work could be removed at a higher rate than emergency work. The cleaned dataset would then overrepresent serious incidents and could produce misleading statistics or a biased future classifier.
+### `impute_missing_values()`
 
-Imputation can also create bias. Replacing all missing repair costs or asset ages with one overall average can erase differences among asset types, buildings, or maintenance categories. Likewise, aggressive outlier removal could incorrectly delete rare emergency failures that are operationally important. In maintenance data, an extreme value is not automatically an error.
+Labels missing asset condition as `Unknown` rather than inventing a Good/Fair/Poor value. Numerical missing values are filled with group medians using asset type and maintenance type, followed by an overall median fallback.
 
-Category standardization also requires care. Values such as `HVAC`, `hvac`, and ` HVAC ` can reasonably be normalized to one category, but two labels that look similar may represent genuinely different equipment classes. Duplicate removal has the same risk: two records describing similar failures may be repeated maintenance events rather than accidental duplicate rows. For that reason, cleaning rules should use identifiers and domain context instead of removing records only because their values look unusual.
+## Cleaning Justification
 
-These examples show why cleaning decisions must be documented and evaluated for their effect on class distribution, asset groups, and other important subpopulations.
+The project avoids simply deleting every incomplete record because row deletion can change which asset categories or priority classes are represented. Median imputation is used for selected skewed numerical variables because it is less sensitive to extreme values than a mean, but the notebook explicitly acknowledges that imputation still reduces variability.
+
+The raw dataset remains unchanged and cleaning transformations are applied to a separate DataFrame. The processed output is saved separately so the workflow remains auditable.
+
+## Bias Awareness: How Poor Cleaning Can Introduce Bias
+
+Poor data cleaning can change the population represented by a dataset and therefore change the conclusions or models built from it.
+
+For example, imagine that low-priority maintenance requests are more likely to have incomplete documentation because technicians spend less time recording routine work. If every row with a missing field were deleted, low-priority work could be removed at a higher rate than emergency work. The cleaned dataset would then overrepresent serious incidents and a future classifier could learn a distorted view of normal operations.
+
+Imputation can also introduce bias. Replacing every missing repair cost or asset age with one overall average can erase meaningful differences among asset types or maintenance categories. Aggressive outlier removal can be equally harmful because a rare emergency failure may be operationally important rather than erroneous.
+
+Category normalization and duplicate removal also require domain context. Similar-looking labels may represent different equipment classes, and two similar work orders may be repeated failures rather than duplicates. For this project, the duplicate IDs and malformed categories are intentionally generated, so their treatment is known. With real data, those rules would require validation with business owners and data documentation.
+
+## Exploratory Data Analysis
+
+`src/eda.py` contains reusable functions for:
+
+- priority counts and percentages;
+- work-order/cost/failure summaries by asset type;
+- operational summaries by priority;
+- transparent filtering of records with repeated failures and overdue PM.
+
+The notebook also displays descriptive statistics for numerical maintenance fields.
+
+A critical principle throughout the analysis is that **association is not causation**. Because this dataset is synthetic, observed patterns may directly reflect the assumptions used to generate it.
+
+## Visualizations
+
+`src/visualizations.py` provides reusable Matplotlib functions. The notebook currently includes four labeled and interpreted visualizations:
+
+1. work-order distribution by priority;
+2. average previous failures by priority;
+3. median estimated repair cost by asset type;
+4. resolution-time distribution by priority.
+
+Every visualization has a descriptive title, labeled axes, and a written interpretation immediately following the chart.
+
+## Data Leakage Note
+
+`resolution_hours` is useful for retrospective operational analysis but is **not appropriate as a feature for predicting priority at intake** because it is only known after a work order has been resolved.
+
+A future machine-learning phase must distinguish information available at prediction time from post-outcome information. This prevents target leakage and unrealistic model performance.
 
 ## Future ML Workflow Reflection
 
-When this project advances from exploratory analysis to machine learning, several workflow changes will be necessary. The target variable will be separated from candidate features, and the data will be divided into training, validation, and test sets. Any preprocessing that learns statistics from the data should be fitted only on the training portion to avoid data leakage.
+When this project advances from exploratory analysis to supervised machine learning, the target (`priority`) will be separated from candidate predictor features and the data will be divided into training, validation, and test sets.
 
-Categorical variables will require encoding, numerical variables may require scaling depending on the model, and missing-value strategies will need to be incorporated into a repeatable preprocessing pipeline. Baseline models should be established before more complex methods are introduced. Because `Emergency` work orders are expected to be less common than `Medium` work orders, evaluation should not rely on accuracy alone. Precision, recall, F1 score, per-class performance, and a confusion matrix will be important. Class weighting or other imbalance strategies may also need to be evaluated.
+Preprocessing steps that learn statistics from data must be fitted only on the training set. Categorical fields will need encoding, and numerical fields may require scaling depending on the selected algorithm. A baseline should be established before complex models are introduced.
 
-Possible future models include logistic regression, decision trees, random forests, and gradient-boosted trees. Their performance should be compared against a simple baseline and interpreted in the context of maintenance operations rather than only by selecting the largest score.
+Because Emergency work orders are less common than Medium work orders, accuracy alone would be insufficient. Appropriate evaluation should include:
+
+- precision;
+- recall;
+- F1 score;
+- per-class metrics;
+- confusion matrix;
+- possibly class-weighted evaluation.
+
+Candidate later models include logistic regression, decision trees, random forests, and gradient-boosted trees. Their performance should be compared against a simple baseline and interpreted within the maintenance use case rather than choosing a model only because it has the largest score.
 
 ## Neural Network Preparation Reflection
 
-A neural network would require additional preparation because the maintenance table contains a mixture of categorical, numerical, Boolean, and possibly text features. Categorical values such as asset type, issue type, and maintenance type would need numerical representations such as one-hot encoding or learned embeddings. Numerical inputs such as asset age, repair cost, PM overdue days, and previous failure counts would normally be scaled or normalized so that features with large numerical ranges do not dominate optimization.
+A neural network would require additional preparation because the table contains categorical, numerical, Boolean, and potentially future text features.
 
-The dataset would also need clearly separated training, validation, and test subsets. Missing-value handling must be consistent across those subsets, and any statistics used for imputation or scaling must be learned from training data only. If priority classes are imbalanced, class weights or carefully chosen sampling strategies may be needed. Inputs and targets would ultimately be converted into tensors compatible with the chosen deep-learning framework.
+Categorical values such as asset type, issue type, and maintenance type would need numerical representations such as one-hot encoding or learned embeddings. Numerical values such as asset age, PM overdue days, and previous failure counts would normally be scaled or normalized. Inputs and targets would then be converted to tensors for the chosen deep-learning framework.
 
-A neural network should not be assumed to be better simply because it is more complex. With a tabular dataset of this size, classical machine-learning models may outperform or equal a neural network while remaining easier to interpret. Model choice should therefore be based on evidence from validation results.
+The training, validation, and test split would still need to be respected, and imputation/scaling statistics must be learned only from training data. Class imbalance could require class weighting or carefully evaluated sampling strategies.
+
+A neural network should not be assumed to outperform classical models. For a tabular dataset of this size, tree-based or linear models may perform as well or better while remaining easier to interpret.
 
 ## Agentic Automation Potential Reflection
 
-The cleaned data workflow could eventually support an agentic maintenance system. A future agent could receive a natural-language maintenance request, identify the relevant property and asset, retrieve recent work-order and preventive-maintenance history, call a trained priority model, and present a recommended priority to a facilities manager.
+The completed data workflow could eventually support an agentic maintenance system. A future agent could:
 
-A more advanced workflow could then help create the work order, suggest an appropriate technician or trade, notify responsible staff, monitor status, and request missing information from the requestor. The machine-learning model would be one tool used by the agent rather than the entire decision-making system.
+```text
+Receive maintenance request
+          |
+          v
+Identify property / asset
+          |
+          v
+Retrieve maintenance history
+          |
+          v
+Call priority prediction model
+          |
+          v
+Recommend priority
+          |
+          v
+Assist with work-order creation / routing
+          |
+          v
+Monitor status and request missing information
+```
 
-Human oversight would remain important. High-risk decisions involving life safety, emergency response, regulatory requirements, or costly asset replacement should not be silently automated from a synthetic-data-trained model. A production implementation would need real operational validation, access controls, audit logs, confidence thresholds, exception handling, privacy protections, and clear rules for when a human must approve or override an automated recommendation.
+The machine-learning model would be one tool used by the agent, not the entire decision-making system.
+
+Human oversight remains essential for life-safety events, emergency response, regulatory decisions, costly replacements, and uncertain predictions. A production version would require real operational validation, role-based access, audit logging, confidence thresholds, privacy controls, exception handling, and clear human-override rules.
 
 ## Assumptions and Limitations
 
-The project begins with synthetic data because historical customer maintenance data is not yet available. This creates several important limitations:
+The major limitation is that this project uses synthetic rather than observed customer data.
 
-- Relationships in the data reflect rules and probabilities chosen by the project, not measured customer behavior.
-- Synthetic data can unintentionally encode the assumptions or biases of its designer.
-- Model performance on synthetic data cannot demonstrate real-world predictive performance.
-- Generated descriptions, costs, failure rates, and priority distributions may differ from those of actual organizations.
-- Real maintenance data may contain additional sources of missingness, reporting inconsistency, seasonal behavior, technician effects, property differences, and policy-driven priority decisions that are not represented in the simulation.
+- Relationships reflect generator rules and probabilities, not measured customer behavior.
+- Synthetic data can encode the assumptions or biases of its designer.
+- Performance on this data cannot demonstrate real-world predictive performance.
+- Actual organizations may use very different asset taxonomies and priority definitions.
+- Real data may contain seasonality, technician effects, property effects, reporting inconsistencies, and missingness mechanisms not represented here.
+- Cleaning thresholds and imputation choices must be reevaluated before use with real records.
 
-Once real operational data becomes available, the synthetic assumptions should be compared with observed distributions and relationships. The preprocessing workflow should then be reevaluated before any production model is trained or deployed.
-
-## Planned Visual Analysis
-
-The notebook will include at least three labeled visualizations with written interpretations. Candidate analyses include:
-
-- work-order distribution by priority;
-- repair cost by asset type;
-- relationship between asset age and failure history;
-- resolution time by priority;
-- maintenance condition or PM compliance across asset classes.
-
-Every final chart will include a descriptive title and labeled axes, followed by an interpretation that distinguishes association from causation.
+Once real operational data becomes available, distributions and relationships should be re-audited and every cleaning and feature-engineering assumption should be validated before training a production model.
 
 ## Project Roadmap
 
-- [ ] Initialize Python repository structure and development environment.
-- [ ] Document the synthetic maintenance data specification.
-- [ ] Build the reproducible Python data generator.
-- [ ] Create the primary Jupyter notebook and ingest data with Pandas.
-- [ ] Implement documented data-cleaning functions.
-- [ ] Perform exploratory data analysis.
-- [ ] Add at least three interpreted visualizations.
-- [ ] Complete notebook summary, assumptions, and limitations.
-- [ ] Generate `requirements.txt` using `pip freeze`.
-- [ ] Verify the notebook runs top-to-bottom without errors.
-- [ ] Complete final rubric review.
-- [ ] Extend the cleaned dataset into a future priority-classification ML project.
+- [x] Initialize Python repository structure.
+- [x] Create a development branch beyond `main`.
+- [x] Document the synthetic maintenance dataset specification.
+- [x] Build the reproducible Python data generator.
+- [x] Create the primary Jupyter notebook and ingest data with Pandas.
+- [x] Implement documented data-cleaning functions.
+- [x] Perform exploratory data analysis with reusable functions.
+- [x] Add at least three interpreted visualizations.
+- [x] Complete notebook summary, assumptions, and limitations.
+- [x] Add pinned `requirements.txt` versions derived from `pip freeze`.
+- [ ] Perform the final clean-kernel, top-to-bottom execution audit.
+- [ ] Complete final rubric review and merge the submission branch.
+- [ ] Future phase: train and evaluate priority-classification models.
 
 ## Git/GitHub Workflow
 
-Development will use multiple meaningful commits and at least one branch beyond `main`, as required by the project rubric. Changes should be grouped into understandable units such as data design, synthetic generation, cleaning, EDA, visualizations, and documentation rather than submitted as one large final commit.
+Development uses multiple meaningful commits on `feature/project-setup` in addition to `main`, satisfying the course expectation that Git history reflects incremental work rather than one final bulk upload.
+
+The branch is reviewed through a pull request before being merged into the public `main` branch.
+
+## Security
+
+This is a public repository. **Never commit credentials or real customer data.**
+
+Do not commit:
+
+- API keys;
+- passwords or tokens;
+- `.env` secret files;
+- private keys or certificates;
+- production database connection strings;
+- cloud credentials;
+- customer or personally identifiable maintenance data.
+
+See `SECURITY.md` and `.gitignore` for additional safeguards.
 
 ## Academic and Ethical Note
 
-This repository is an educational machine-learning/data-workflow project. Synthetic records are clearly identified as synthetic, and conclusions will be presented with appropriate limitations. No synthetic analysis should be represented as evidence collected from real clients or real maintenance operations.
+This repository is an educational data-workflow and machine-learning foundation project. Synthetic records are explicitly identified as synthetic, and conclusions are presented with appropriate limitations. No synthetic analysis should be represented as evidence collected from real clients or real maintenance operations.
