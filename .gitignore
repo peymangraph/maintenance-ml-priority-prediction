@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+secrets.json
+secrets.yaml
+secrets.yml
+
+# Local logs / caches
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Model/runtime artifacts that should not be committed by default
+models/*.pkl
+models/*.joblib
+models/*.onnx
+
+# Keep placeholders if used
+!models/.gitkeep
